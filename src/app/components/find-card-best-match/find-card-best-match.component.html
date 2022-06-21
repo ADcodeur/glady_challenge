@@ -1,0 +1,53 @@
+<div (click)="onComponentTounched()" id="content">
+  <p>Montant désiré :</p>
+  <form [formGroup]="formGroup">
+    <div id="form_content">
+      <div id="input_wrapper">
+        <input type="number" [formControlName]="'amountControl'" />
+      </div>
+      <button
+        type="submit"
+        [disabled]="formGroup.invalid || disabled"
+        (click)="onValidate()"
+      >
+        VALIDER
+      </button>
+    </div>
+  </form>
+  <div id="prev_next_wrapper">
+    <button [disabled]="disabled" (click)="searchAdjacentCombinaison('DOWN')">
+      -
+    </button>
+    <button [disabled]="disabled" (click)="searchAdjacentCombinaison('UP')">
+      +
+    </button>
+  </div>
+  <div
+    *ngIf="floorProposition && ceilProposition"
+    id="number_proposition_wrapper"
+  >
+    <p>
+      Sorry, there is no combination available for this amount, please select a
+      proposition among the ones below
+    </p>
+    <button
+      [disabled]="disabled"
+      (click)="onPropositionSelected(floorProposition)"
+    >
+      {{ floorProposition! }}
+    </button>
+    <button
+      [disabled]="disabled"
+      (click)="onPropositionSelected(ceilProposition)"
+    >
+      {{ ceilProposition! }}
+    </button>
+  </div>
+
+  <div *ngIf="cards.length" id="card_wrapper">
+    <p>Votre montant est composé des cartes suivantes :</p>
+    <ul>
+      <li *ngFor="let card of cards">{{ card }}</li>
+    </ul>
+  </div>
+</div>
