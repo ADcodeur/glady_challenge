@@ -72,71 +72,68 @@ export class FindCardBestMatchComponent
     this.subscriptions.unsubscribe();
   }
 
-  onValidate(): void {
-    this.searchExactCombinaison(this.amountControl.value);
+  async onValidate() {
+    await this.searchExactCombinaison(this.amountControl.value);
   }
 
-  onPropositionSelected(amount: number): void {
+  async onPropositionSelected(amount: number) {
     this.amountControl.setValue(amount);
-    this.searchExactCombinaison(amount);
+    await this.searchExactCombinaison(amount);
   }
 
-  searchAdjacentCombinaison(direction: 'UP' | 'DOWN'): void {
+  async searchAdjacentCombinaison(direction: 'UP' | 'DOWN') {
     this.floorProposition = undefined;
     this.ceilProposition = undefined;
     this.isLoading = true;
-
+    let result: SearchCombinaisonResult;
     if (direction === 'UP') {
-      this.searchCombinaison(this.amountControl.value + 1)
-        .then((result: SearchCombinaisonResult) => {
-          if (result.ceil && result.ceil.value !== this.amountControl.value) {
-            this.amountControl.setValue(result.ceil.value);
-            this.cards = result.ceil.cards;
-          } else {
-            alert('No more amount available');
-          }
-        })
-        .finally(() => (this.isLoading = false));
+      result = await this.searchCombinaison(this.amountControl.value + 1);
+      if (result) {
+        if (result.ceil && result.ceil.value !== this.amountControl.value) {
+          this.amountControl.setValue(result.ceil.value);
+          this.cards = result.ceil.cards;
+        } else {
+          alert('No more amount available');
+        }
+      }
     } else if (direction === 'DOWN') {
-      this.searchCombinaison(this.amountControl.value - 1)
-        .then((result: SearchCombinaisonResult) => {
-          if (result.floor && result.floor.value !== this.amountControl.value) {
-            this.amountControl.setValue(result.floor.value);
-            this.cards = result.floor.cards;
-          } else {
-            alert('No more amount available');
-          }
-        })
-        .finally(() => (this.isLoading = false));
-    } else {
-      this.isLoading = false;
+      result = await this.searchCombinaison(this.amountControl.value - 1);
+      if (result) {
+        if (result.floor && result.floor.value !== this.amountControl.value) {
+          this.amountControl.setValue(result.floor.value);
+          this.cards = result.floor.cards;
+        } else {
+          alert('No more amount available');
+        }
+      }
     }
+    this.isLoading = false;
   }
 
-  private searchExactCombinaison(amount: number): void {
+  private async searchExactCombinaison(amount: number) {
     this.floorProposition = undefined;
     this.ceilProposition = undefined;
     this.isLoading = true;
-    this.searchCombinaison(amount)
-      .then((result: SearchCombinaisonResult) => {
-        if (result?.equal) {
-          this.cards = result.equal.cards;
-        } else {
-          if (result?.ceil && result?.floor) {
-            this.floorProposition = result.floor.value;
-            this.ceilProposition = result.ceil.value;
-          } else if (result?.ceil) {
-            this.amountControl.setValue(result.ceil.value);
-            this.cards = result.ceil.cards;
-          } else if (result?.floor) {
-            this.amountControl.setValue(result.floor.value);
-            this.cards = result.floor.cards;
-          }
+    const result: SearchCombinaisonResult = await this.searchCombinaison(
+      amount
+    );
+    if (result) {
+      if (result?.equal) {
+        this.cards = result.equal.cards;
+      } else {
+        if (result?.ceil && result?.floor) {
+          this.floorProposition = result.floor.value;
+          this.ceilProposition = result.ceil.value;
+        } else if (result?.ceil) {
+          this.amountControl.setValue(result.ceil.value);
+          this.cards = result.ceil.cards;
+        } else if (result?.floor) {
+          this.amountControl.setValue(result.floor.value);
+          this.cards = result.floor.cards;
         }
-      })
-      .finally(() => {
-        this.isLoading = false;
-      });
+      }
+    }
+    this.isLoading = false;
   }
 
   private searchCombinaison(amount: number): Promise<SearchCombinaisonResult> {

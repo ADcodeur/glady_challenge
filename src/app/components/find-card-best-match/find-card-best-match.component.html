@@ -3,7 +3,11 @@
   <form [formGroup]="formGroup">
     <div id="form_content">
       <div id="input_wrapper">
-        <input type="number" [formControlName]="'amountControl'" />
+        <input
+          id="input_amount"
+          type="number"
+          [formControlName]="'amountControl'"
+        />
       </div>
       <button
         type="submit"
@@ -26,17 +30,19 @@
     *ngIf="floorProposition && ceilProposition"
     id="number_proposition_wrapper"
   >
-    <p>
+    <p id="no_combination_msg">
       Sorry, there is no combination available for this amount, please select a
       proposition among the ones below
     </p>
     <button
+      id="floor_btn"
       [disabled]="disabled"
       (click)="onPropositionSelected(floorProposition)"
     >
       {{ floorProposition! }}
     </button>
     <button
+      id="ceil_btn"
       [disabled]="disabled"
       (click)="onPropositionSelected(ceilProposition)"
     >
